@@ -1,4 +1,5 @@
 {
   "name": "AndroidChallenge",
-  "displayName": "AndroidChallenge"
+  "displayName": "AndroidChallenge",
+  "icon": "./src/images/appIcon.png"
 }

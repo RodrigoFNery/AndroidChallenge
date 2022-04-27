@@ -1,8 +1,14 @@
+/**
+ * GeneralStatusBar.tsx
+ * Renders the device's top status bar 
+ */
+
 import React from 'react';
-import { View, 
-    StatusBar, 
-    ViewProps, 
-    StatusBarStyle 
+import {
+    View,
+    StatusBar,
+    ViewProps,
+    StatusBarStyle
 } from 'react-native';
 
 //Styling

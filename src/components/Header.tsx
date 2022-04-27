@@ -1,6 +1,12 @@
+/**
+ * Header.tsx
+ * Renders the app Header banner
+ */
+
 import React, { FC, } from "react";
-import { View,
-    Image 
+import {
+    View,
+    Image
 } from "react-native";
 
 //Styling

@@ -1,3 +1,8 @@
+/**
+ * Home.tsx
+ * Renders the main Home screen that shows the TabView with 3 inner screens
+ */
+
 import React, { memo } from 'react';
 import { useWindowDimensions } from 'react-native';
 
