@@ -3,15 +3,18 @@
  */
 
 const pt_br = {
-   //Home.tsx
-   AllSeries: 'Todas Series',
-   Episode: 'Episodio',
-   Episodes: 'Episodios',
+   AllSeries: 'Todas as Séries',
+   Back: 'Voltar',
+   Close: 'Fechar',
+   Episode: 'Episódio',
+   Episode_Detail: 'Detalhes do Episódio',
+   Episodes: 'Episódios',
    Favoritos: 'Favoritos',
    Search: 'Busca',
    Season: 'Temporada',
-   Select_a_season: 'SelecSelecione uma temporada',
-   Series: 'SERIES',
+   Select_a_season: 'Selecione uma temporada',
+   Serie_Detail: 'Detalhes da Série',
+   Series: 'SÉRIES',
    Summary: 'Resumo',
 }
 

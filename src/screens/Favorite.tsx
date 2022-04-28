@@ -9,6 +9,7 @@ import { Text } from 'react-native';
 //Translation
 import { translate } from '../locales';
 
+//Main Functional Component
 const Favorite = () => {
   return (
     <Text>{translate('Favorite')}</Text>

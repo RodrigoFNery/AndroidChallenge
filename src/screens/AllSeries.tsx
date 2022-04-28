@@ -3,8 +3,19 @@
  * Renders the screen that shows all series cards
  */
 
-import React, { memo, useState, useEffect } from 'react';
-import { ScrollView, View } from 'react-native';
+//React-Native
+import {
+  ScrollView,
+  View
+} from 'react-native';
+
+//React
+import React,
+{
+  memo,
+  useState,
+  useEffect
+} from 'react';
 
 //Entities
 import CardModel from '../model/CardModel';
@@ -21,6 +32,7 @@ import Pagination from '../components/Pagination';
 
 //Screens
 import SerieDetail from './SerieDetail';
+import EpisodeDetail from './EpisodeDetail';
 
 //Styling
 import styles from '../styles/appStyles';
@@ -29,56 +41,69 @@ import styles from '../styles/appStyles';
 import { store } from "../redux";
 import * as AppActions from "../redux/actions/appActions";
 
+//Main Functional Component
 const AllSeries = () => {
-  const [series, setSeries] = useState<CardModel[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [maxPage, setMaxPage] = useState(1);
-  const [modal, setModal] = useState(false)
+  //Search keys
+  const KEYS_TO_FILTERS = ['firstName', 'lastName'];
 
-  const onclick = (serie: CardModel) => {
+  //hold series cards of current page
+  const [series, setSeries] = useState<CardModel[]>([]);
+  
+  //Current page shown
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  //Total number of pages
+  const [maxPage, setMaxPage] = useState(1);
+
+  const onSerieclick = (serie: CardModel) => {
     store.dispatch(AppActions.setSelectedSerieId(serie.id));
-    setModal(true);
+    store.dispatch(AppActions.setShowSerieDetail(true));
+    store.dispatch(AppActions.setShowEpisodeDetail(false));
   }
 
+  //Counts the total number of pages using Binary Search logic
   const countPages = async () => {
     const p = await Services.countPages();
     setMaxPage(p);
   };
 
+  //Load series cards for the current page
   const getAllSeries = async () => {
     setSeries(await Services.getAllSeries(currentPage));
   };
 
+  //Counts the total number of pages and load series for the current page cards when screen is loaded
   useEffect(() => {
     countPages().then(() => {
       getAllSeries();
     })
   }, []);
 
+  //Loads series cards for the current page when currentPage changes
   useEffect(() => {
     getAllSeries();
   }, [currentPage]);
 
 
-  const getFirstPage = async () => {
+  const onFirstPageClick = async () => {
     if (currentPage > 1) {
       setCurrentPage(1);
     }
   };
 
-  const getPreviousPage = async () => {
+  const onPreviousPageClick = async () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  const getNextPage = async () => {
+  const onNextPageClick = async () => {
     if (currentPage < maxPage) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  const getLastPage = async () => {
+  const onLastPageClick = async () => {
     if (currentPage < maxPage) {
       setCurrentPage(maxPage);
     }
@@ -90,11 +115,12 @@ const AllSeries = () => {
         <View style={styles.content}>
           <ScrollView contentContainerStyle={styles.scrollView} scrollEventThrottle={16}>
             {series.map((serie, i) => (
-              <Card cardModel={serie} key={i} onPress={() => onclick(serie)} />
+              <Card cardModel={serie} key={i} onPress={() => onSerieclick(serie)} />
             ))}
           </ScrollView>
-          <Pagination currentPage={currentPage} minPage={1} maxPage={maxPage} goBackward={() => getPreviousPage()} goForward={() => getNextPage()} goFirst={() => getFirstPage()} goLast={() => getLastPage()} />
-          <SerieDetail show={modal} onClose={() => setModal(false)} />
+          <Pagination currentPage={currentPage} minPage={1} maxPage={maxPage} goBackward={() => onPreviousPageClick()} goForward={() => onNextPageClick()} goFirst={() => onFirstPageClick()} goLast={() => onLastPageClick()} />
+          <SerieDetail />
+          <EpisodeDetail />
         </View>
       )}
     </>

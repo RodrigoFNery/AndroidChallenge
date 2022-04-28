@@ -28,6 +28,8 @@ export const ComponentColors = {
 
     LightSerieName: '#3f3f3f',
 
+    LightSeparator: '#3f3f3f',
+
     LightScrollViewBackground: '#f0f0f0',
 
     LightSummaryBackground: '#777',

@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
-  ViewProps,
   Image,
   ImageURISource,
   useWindowDimensions,
@@ -22,7 +21,6 @@ import RenderHtml, { HTMLSource } from 'react-native-render-html';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 //Entities
-import EpisodeModel from '../model/EpisodeModel';
 import SeasonModel from '../model/SeasonModel';
 
 //Services
@@ -30,10 +28,6 @@ import *  as Services from '../api/services';
 
 //Translation
 import { translate } from '../locales';
-
-//Components
-import Card from '../components/Card';
-import Pagination from '../components/Pagination';
 
 //Styling
 import styles from '../styles/appStyles';
@@ -44,51 +38,44 @@ import { ComponentColors } from '../styles/colors';
 import { store } from "../redux";
 import { connect } from "react-redux";
 import { AppState } from '../redux/reducers/appReducer';
-import EpisodeDetail from './EpisodeDetail';
 import * as AppActions from "../redux/actions/appActions";
 
 const { height } = Dimensions.get('window')
 
-//Interface
-interface DetailProps extends ViewProps {
-  show: boolean;
-  onClose: Function;
-}
-
+//Season dropbox itens interface
 type SeasonDropboxItems = {
   label: string;
   value: number;
 }
 
-type Props = ReduxType & DetailProps;
-
-//FunctionalComponent Detail
-const SerieDetail: React.FC<Props> = ({
-  show,
-  onClose,
+//Main FunctionalComponent
+const SerieDetail: React.FC<ReduxType> = ({
   selectedSerieId,
+  selectedSeasonNumber,
+  showSerieDetail,
 }) => {
+  //Holds the selected SerieModel instance
   const [serie, setSerie] = useState<SerieModel>();
+
+  //Holds the Animation state
   const [state, setState] = useState({
     opacity: new Animated.Value(0),
     container: new Animated.Value(height),
     modal: new Animated.Value(height)
   })
 
-  //Episode Modal
-  const [modal, setModal] = useState(false)
-
-  //Seasons Map
+  //Map containing all SeasonModel for the seleted Serie
   const [seasonsMap, setSeasonsMap] = useState<Map<number, SeasonModel>>();
 
   //Seasons Dropbox values
   const [openSeasonsDropbox, setOpenSeasonsDropbox] = useState(false);
-  const [seasonValue, setSeasonValue] = useState(null);
+  const [seasonValue, setSeasonValue] = useState<number | null>(null);
   const [seasonItems, setSeasonItems] = useState<SeasonDropboxItems[]>([]);
 
+  //List of episodes for the selected season
   const [episodesList, setEpisodesList] = useState(<></>);
 
-  //load the selected Serie
+  //load the selected Serie when selectedSerieId changes
   useEffect(() => {
     const loadSerie = async (selectedSerieId: number) => {
       if (selectedSerieId) {
@@ -98,7 +85,7 @@ const SerieDetail: React.FC<Props> = ({
     loadSerie(selectedSerieId);
   }, [selectedSerieId])
 
-  //create seasonsMap as soon as the Serie loaded
+  //create seasonsMap when the SerieModel instance changes
   useEffect(() => {
     //reset SeasonValue and EpidoseListas the serie has changed
     setSeasonValue(null);
@@ -111,21 +98,21 @@ const SerieDetail: React.FC<Props> = ({
     loadSeasonsMap();
   }, [serie])
 
-  //populates populateSeasonsDropbox as soon as seasonsMap is loaded
+  //populates populateSeasonsDropbox when seasonsMap changes
   useEffect(() => {
     populateSeasonsDropbox();
   }, [seasonsMap])
 
   // Open/Close this screen when 'show' changes
   useEffect(() => {
-    if (show) {
+    if (showSerieDetail) {
       openModal();
     } else {
       closeModal();
     }
-  }, [show])
+  }, [showSerieDetail])
 
-  //create episodesList as soon as Season is selected
+  //create episodesList when SeasonValue for dropbox changes
   useEffect(() => {
     createEpisodesList();
   }, [seasonValue])
@@ -146,6 +133,15 @@ const SerieDetail: React.FC<Props> = ({
       Animated.timing(state.opacity, { toValue: 0, duration: 300, useNativeDriver: false }),
       Animated.timing(state.container, { toValue: height, duration: 100, useNativeDriver: false }),
     ]).start()
+  }
+
+  const onCloseClick = () => {
+    store.dispatch(AppActions.setShowSerieDetail(false));
+  }
+
+  const onSeasonSelected = (seasonNumber: number) => {
+    store.dispatch(AppActions.setSelectedSeasonNumber(seasonNumber));
+    setSeasonValue(seasonNumber);
   }
 
   const populateSeasonsDropbox = () => {
@@ -172,23 +168,41 @@ const SerieDetail: React.FC<Props> = ({
     html: (serie ? serie.summary : "")
   };
 
-  const getGenresText = (serie?: SerieModel) => {
+  const getSerieView = (serie?: SerieModel) => {
+    if (serie?.genres) {
+      return (
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={styles.serieName}>{serie?.name}</Text>
+        </View>
+      )
+    }
+    return;
+  }
+
+  const getGenresView = (serie?: SerieModel) => {
     if (serie?.genres) {
       return (<Text style={styles.serieDetails}>({serie.genres.join()})</Text>)
     }
     return;
   }
 
-  const getDaysText = (serie?: SerieModel) => {
+  const getDaysView = (serie?: SerieModel) => {
     if (serie?.schedule.days) {
       return (<Text style={styles.serieDetails}>{serie.schedule.days.join()}</Text>)
     }
     return;
   }
 
+  const getTimeView = (serie?: SerieModel) => {
+    if (serie?.schedule.days) {
+      return (<Text style={styles.serieDetails}>{serie?.schedule.time}</Text>)
+    }
+    return;
+  }
+
   const onEpisodeClick = (episodeId: number) => {
     store.dispatch(AppActions.setSelectedEpisodeId(episodeId));
-    setModal(true);
+    store.dispatch(AppActions.setShowEpisodeDetail(true));
   }
 
   const createEpisodesList = () => {
@@ -237,20 +251,20 @@ const SerieDetail: React.FC<Props> = ({
       >
         <View style={{ ...styles.container, justifyContent: 'space-between' }}>
           <View style={{ ...styles.content, flex: 1 }}>
-            <View style={styles.modalViewIndicator} />
-            {/* <View> */}
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ ...styles.serieName }}>{translate('Serie_Detail')}</Text>
+            </View>
+            <View style={styles.separator} />
             <View style={{ ...styles.viewHorizontalLeft }}>
               <Image
                 style={styles.cardImage}
                 source={imageSource}
               />
-              <View style={{ ...styles.content }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text style={styles.serieName}>{serie?.name}</Text>
-                </View>
-                {getGenresText(serie)}
-                {getDaysText(serie)}
-                <Text style={styles.serieDetails}>{serie?.schedule.time}</Text>
+              <View style={{ ...styles.content, marginTop: 10 }}>
+                {getSerieView(serie)}
+                {getGenresView(serie)}
+                {getDaysView(serie)}
+                {getTimeView(serie)}
               </View>
             </View>
 
@@ -274,17 +288,17 @@ const SerieDetail: React.FC<Props> = ({
                   setValue={setSeasonValue}
                   setItems={setSeasonItems}
                   listMode="SCROLLVIEW"
+                  onChangeValue={() => onSeasonSelected}
                 />
                 {episodesList}
               </ScrollView>
             </View>
           </View>
           <View style={{ margin: 10, alignItems: 'center' }}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => onClose()}>
-              <Text style={styles.textButton}>Close</Text>
+            <TouchableOpacity style={styles.closeButton} onPress={() => onCloseClick()}>
+              <Text style={styles.textButton}>{translate('Close')}</Text>
             </TouchableOpacity>
           </View>
-          <EpisodeDetail show={modal} onClose={() => setModal(false)} />
         </View>
       </Animated.View>
     </Animated.View >
@@ -294,7 +308,9 @@ const SerieDetail: React.FC<Props> = ({
 const mapStateToProps = (appState: AppState) => {
   return (
     {
-      selectedSerieId: appState.selectedSerieId
+      selectedSerieId: appState.selectedSerieId,
+      selectedSeasonNumber: appState.selectedSeasonNumber,
+      showSerieDetail: appState.showSerieDetail,
     }
   )
 };

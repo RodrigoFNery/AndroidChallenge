@@ -3,7 +3,7 @@
  * Renders the screen that shows all series cards
  */
 
-import React, { memo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   View,
@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
-  ViewProps,
   Image,
   ImageURISource,
   useWindowDimensions,
@@ -19,11 +18,9 @@ import {
 
 // Third part components
 import RenderHtml, { HTMLSource } from 'react-native-render-html';
-import DropDownPicker from 'react-native-dropdown-picker';
 
 //Entities
 import EpisodeModel from '../model/EpisodeModel';
-import SeasonModel from '../model/SeasonModel';
 
 //Services
 import *  as Services from '../api/services';
@@ -31,48 +28,34 @@ import *  as Services from '../api/services';
 //Translation
 import { translate } from '../locales';
 
-//Components
-import Card from '../components/Card';
-import Pagination from '../components/Pagination';
-
 //Styling
 import styles from '../styles/appStyles';
 import { ComponentColors } from '../styles/colors';
 
 //Redux
+import { store } from "../redux";
 import { connect } from "react-redux";
 import { AppState } from '../redux/reducers/appReducer';
+import * as AppActions from "../redux/actions/appActions";
 
 const { height } = Dimensions.get('window')
 
-//Interface
-interface DetailProps extends ViewProps {
-  show: boolean;
-  onClose: Function;
-}
-
-type SeasonDropboxItems = {
-  label: string;
-  value: number;
-}
-
-type Props = ReduxType & DetailProps;
-
-//FunctionalComponent Detail
-const EpisodeDetail: React.FC<Props> = ({
-  show,
-  onClose,
+//Main Functional Component
+const EpisodeDetail: React.FC<ReduxType> = ({
   selectedEpisodeId,
+  showEpisodeDetail,
 }) => {
+  //EpisodeModel instance
   const [episode, setEpisode] = useState<EpisodeModel>();
+
+  //Animation state
   const [state, setState] = useState({
     opacity: new Animated.Value(0),
     container: new Animated.Value(height),
     modal: new Animated.Value(height)
   })
 
-
-  //load the selected Serie
+  //load the EpisodeModel when selectedEpisodeId changes
   useEffect(() => {
     const loadEpisode = async (selectedEpisodeId: number) => {
       if (selectedEpisodeId) {
@@ -82,14 +65,14 @@ const EpisodeDetail: React.FC<Props> = ({
     loadEpisode(selectedEpisodeId);
   }, [selectedEpisodeId])
 
-  // Open/Close this screen when 'show' changes
+  // Open/Close this screen when showEpisodeDetail changes
   useEffect(() => {
-    if (show) {
-      openModal()
+    if (showEpisodeDetail) {
+      openModal();
     } else {
-      closeModal()
+      closeModal();
     }
-  }, [show])
+  }, [showEpisodeDetail])
 
   //Open modal animation
   const openModal = async () => {
@@ -107,6 +90,47 @@ const EpisodeDetail: React.FC<Props> = ({
       Animated.timing(state.opacity, { toValue: 0, duration: 300, useNativeDriver: false }),
       Animated.timing(state.container, { toValue: height, duration: 100, useNativeDriver: false }),
     ]).start()
+  }
+
+  const getEpisodeNumberView = (episode?: EpisodeModel) => {
+    if (episode) {
+      return (
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ ...styles.episodeDetails }}>{translate('Episode') + ' ' + (episode?.number)}  </Text>
+        </View>
+      )
+    } else {
+      return (<></>)
+    }
+  }
+
+  const getEpisodeNameView = (episode?: EpisodeModel) => {
+    if (episode) {
+      return (
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ ...styles.episodeDetails }}>{(episode?.name)}  </Text>
+        </View>
+      )
+    } else {
+      return (<></>)
+    }
+  }
+
+  const getSeasonNameView = (episode?: EpisodeModel) => {
+    if (episode) {
+      return (
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ ...styles.episodeDetails }}>{'(' + translate('Season') + ' - ' + (episode?.season) + ')'}</Text>
+        </View>
+      )
+    } else {
+      return (<></>)
+    }
+  }
+
+  const onBackClick = () => {
+    store.dispatch(AppActions.setShowSerieDetail(true));
+    store.dispatch(AppActions.setShowEpisodeDetail(false));
   }
 
   const imageURISource: ImageURISource = {
@@ -139,17 +163,20 @@ const EpisodeDetail: React.FC<Props> = ({
       >
         <View style={{ ...styles.container, justifyContent: 'space-between' }}>
           <View style={{ ...styles.content, flex: 1 }}>
-            <View style={styles.modalViewIndicator} />
-            {/* <View> */}
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ ...styles.serieName }}>{translate('Episode_Detail')}</Text>
+            </View>
+            <View style={styles.separator} />
+
             <View style={{ ...styles.viewHorizontalLeft }}>
               <Image
                 style={styles.cardImage}
                 source={imageSource}
               />
-              <View style={{ ...styles.content }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text style={styles.serieName}>{episode?.name}</Text>
-                </View>
+              <View style={{ ...styles.content, marginTop:10 }}>
+                {getEpisodeNumberView(episode)}
+                {getEpisodeNameView(episode)}
+                {getSeasonNameView(episode)}
               </View>
             </View>
 
@@ -168,8 +195,8 @@ const EpisodeDetail: React.FC<Props> = ({
             </View>
           </View>
           <View style={{ margin: 10, alignItems: 'center' }}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => onClose()}>
-              <Text style={styles.textButton}>Close</Text>
+            <TouchableOpacity style={styles.closeButton} onPress={() => onBackClick()}>
+              <Text style={styles.textButton}>{translate('Back')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -181,7 +208,9 @@ const EpisodeDetail: React.FC<Props> = ({
 const mapStateToProps = (appState: AppState) => {
   return (
     {
-      selectedEpisodeId: appState.selectedEpisodeId
+      selectedSeasonNumber: appState.selectedSeasonNumber,
+      selectedEpisodeId: appState.selectedEpisodeId,
+      showEpisodeDetail: appState.showEpisodeDetail,
     }
   )
 };

@@ -3,7 +3,10 @@
  * Renders the main Home screen that shows the TabView with 3 inner screens
  */
 
+//React
 import React, { memo } from 'react';
+
+//React-Native
 import { useWindowDimensions } from 'react-native';
 
 //TabView
@@ -33,15 +36,18 @@ interface HomeProps {
   color?: string
 }
 
+//Renders TabView scene
 const renderScene = SceneMap({
   search: Search,
   allSeries: AllSeries,
   favorite: Favorite,
 });
 
+//Main Functional Component
 const Home: React.FC<HomeProps> = () => {
   const layout = useWindowDimensions();
 
+  //Holds the TabView selected index
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: 'allSeries', title: translate('AllSeries') },
@@ -49,6 +55,7 @@ const Home: React.FC<HomeProps> = () => {
     { key: 'favorite', title: translate('Favorite') },
   ]);
 
+  //Renders TabView tab
   const renderTabBar = (props: SceneRendererProps) => (
     <TabBar 
       {...props}

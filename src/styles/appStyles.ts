@@ -116,6 +116,15 @@ const baseDetailImage: StyleProp<ImageStyle> = {
     alignSelf: 'center',
 }
 
+const baseEpisodeDetails: StyleProp<TextStyle> = {
+    flex: 1,
+    flexWrap: 'wrap',
+    textAlignVertical: 'center',
+    fontSize: MEDIUM_FONT_SIZE,
+    fontWeight: 'bold',
+    textAlign: 'center',
+};
+
 const baseHeader: StyleProp<TextStyle> = {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -259,6 +268,11 @@ const baseSerieName: StyleProp<TextStyle> = {
     textAlign: 'center',
 };
 
+const baseSeparator: StyleProp<ViewStyle> = {
+    width: '100%',
+    height: 1,
+};
+
 const baseScrollView: StyleProp<ViewStyle> = {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -386,6 +400,11 @@ const styles = StyleSheet.create({
         ...baseDetailImage,
     },
 
+    episodeDetails: {
+        ...baseEpisodeDetails,
+        color: ComponentColors.LightSerieName,
+    },
+
     header: {
         ...baseHeader,
         backgroundColor: ComponentColors.LightHeaderBackgroundColor,
@@ -468,6 +487,11 @@ const styles = StyleSheet.create({
     scrollView: {
         ...baseScrollView,
         backgroundColor: ComponentColors.LightScrollViewBackground,
+    },
+
+    separator: {
+        ...baseSeparator,
+        backgroundColor: ComponentColors.LightSeparator,
     },
 
     summaryView: {

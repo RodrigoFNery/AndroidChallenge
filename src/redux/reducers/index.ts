@@ -1,3 +1,8 @@
+/**
+ * index.ts
+ * Provide the root Reducer
+ */
+
 //Redux
 import { combineReducers } from '@reduxjs/toolkit';
 import { AppReducer } from './appReducer';
