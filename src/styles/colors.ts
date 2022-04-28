@@ -18,11 +18,17 @@ export const ComponentColors = {
     LightPaginationTextLink: '#4682b4',
 
     LightTabBarBackground: '#3c958b',
+    LightTabBarText: '#fff',
     LightTabBarIndicator: '#3f3f3f',
 
     LightTextInputBorder: '#3f3f3f',
+    LightTextLink: '#4682b4',
 
     LightStatusBarBackground: '#3f3f3f',
 
+    LightSerieName: '#3f3f3f',
+
     LightScrollViewBackground: '#f0f0f0',
+
+    LightSummaryBackground: '#777',
 }

@@ -4,10 +4,15 @@
 
 const pt_br = {
    //Home.tsx
-   Series: 'SERIES',
    AllSeries: 'Todas Series',
-   Search: 'Busca',
+   Episode: 'Episodio',
+   Episodes: 'Episodios',
    Favoritos: 'Favoritos',
+   Search: 'Busca',
+   Season: 'Temporada',
+   Select_a_season: 'SelecSelecione uma temporada',
+   Series: 'SERIES',
+   Summary: 'Resumo',
 }
 
 export default pt_br;

@@ -5,14 +5,15 @@
  */
 
 import { ComponentColors } from './colors';
-import { StyleSheet, 
-    Platform, 
-    StatusBar, 
-    Dimensions, 
-    StyleProp, 
-    ViewStyle, 
-    TextStyle, 
-    ImageStyle, 
+import {
+    StyleSheet,
+    Platform,
+    StatusBar,
+    Dimensions,
+    StyleProp,
+    ViewStyle,
+    TextStyle,
+    ImageStyle,
 } from 'react-native';
 
 
@@ -30,6 +31,8 @@ export const LOGO_HEIGHT = Math.round(30 * screenWidthRatio);
 
 export const CARD_IMAGE_WIDTH = Math.round(100 * screenWidthRatio);
 export const CARD_IMAGE_HEIGHT = Math.round(100 * screenWidthRatio);
+
+export const CLOSE_BUTTON_WIDTH = Math.round(100 * screenWidthRatio);
 
 export const HEADER_HEIGHT = Math.round(40 * screenWidthRatio);
 
@@ -61,15 +64,15 @@ const baseCardView: StyleProp<ViewStyle> = {
 };
 
 const baseCardImage: StyleProp<ImageStyle> = {
-    width:CARD_IMAGE_WIDTH,
-    height:CARD_IMAGE_HEIGHT,
+    width: CARD_IMAGE_WIDTH,
+    height: CARD_IMAGE_HEIGHT,
     margin: 10,
     marginBottom: 5,
     borderRadius: 10,
 }
 
 const baseCardText: StyleProp<TextStyle> = {
-    flex: 1, 
+    flex: 1,
     flexWrap: 'wrap',
     textAlignVertical: 'center',
     fontSize: MEDIUM_FONT_SIZE,
@@ -81,6 +84,14 @@ const baseCenteredView: StyleProp<ViewStyle> = {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+};
+
+const baseCloseButton: StyleProp<ViewStyle> = {
+    width: CLOSE_BUTTON_WIDTH,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
 };
 
 const baseContainer: StyleProp<ViewStyle> = {
@@ -99,9 +110,9 @@ const baseContent: StyleProp<ViewStyle> = {
 
 const baseDetailImage: StyleProp<ImageStyle> = {
     margin: 0,
-    padding:0,
-    width:LOGO_WIDTH,
-    height:LOGO_HEIGHT,
+    padding: 0,
+    width: LOGO_WIDTH,
+    height: LOGO_HEIGHT,
     alignSelf: 'center',
 }
 
@@ -122,13 +133,48 @@ const baseInputIcon: StyleProp<ImageStyle> = {
     justifyContent: 'center'
 };
 
+const baseLink: StyleProp<TextStyle> = {
+    textAlignVertical: 'center',
+    fontSize: MEDIUM_FONT_SIZE,
+    textAlign: 'center',
+    color: ComponentColors.LightTextLink,
+};
+
 const baseLogoImage: StyleProp<ImageStyle> = {
     margin: 0,
-    padding:0,
-    width:LOGO_WIDTH,
-    height:LOGO_HEIGHT,
+    padding: 0,
+    width: LOGO_WIDTH,
+    height: LOGO_HEIGHT,
     alignSelf: 'center',
-}
+};
+
+const baseModalContainer: StyleProp<ViewStyle> = {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute'
+};
+
+const baseModalView: StyleProp<ViewStyle> = {
+    bottom: 0,
+    position: 'absolute',
+    height: '90%',
+    backgroundColor: '#fff',
+    width: '100%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingLeft: 25,
+    paddingRight: 25
+};
+
+const baseModalViewIndicator: StyleProp<ViewStyle> = {
+    width: 50,
+    height: 5,
+    backgroundColor: '#ccc',
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginTop: 5
+};
 
 const basePagination: StyleProp<ViewStyle> = {
     flexDirection: 'row',
@@ -195,15 +241,48 @@ const baseSearchInput: StyleProp<TextStyle> = {
     marginVertical: 15,
 };
 
+const baseSerieDetails: StyleProp<TextStyle> = {
+    flex: 1,
+    flexWrap: 'wrap',
+    textAlignVertical: 'center',
+    fontSize: MEDIUM_FONT_SIZE,
+    fontWeight: 'bold',
+    textAlign: 'center',
+};
+
+const baseSerieName: StyleProp<TextStyle> = {
+    flex: 1,
+    flexWrap: 'wrap',
+    textAlignVertical: 'center',
+    fontSize: LARGE_FONT_SIZE,
+    fontWeight: 'bold',
+    textAlign: 'center',
+};
+
 const baseScrollView: StyleProp<ViewStyle> = {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-around",
 };
 
+const baseSummaryView: StyleProp<ViewStyle> = {
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: 'stretch',
+    margin: 0,
+    padding: 10,
+    borderRadius: 10,
+};
+
 const baseStatusBar: StyleProp<ViewStyle> = {
     height: STATUSBAR_HEIGHT,
 }
+
+const baseTextButton: StyleProp<TextStyle> = {
+    textAlignVertical: 'center',
+    fontSize: MEDIUM_FONT_SIZE,
+    textAlign: 'left',
+};
 
 const baseTextInput: StyleProp<TextStyle> = {
     fontSize: MEDIUM_FONT_SIZE,
@@ -289,6 +368,11 @@ const styles = StyleSheet.create({
         ...baseCenteredView,
     },
 
+    closeButton: {
+        ...baseCloseButton,
+        backgroundColor:ComponentColors.LightTabBarBackground,
+    },
+
     container: {
         ...baseContainer,
     },
@@ -297,7 +381,7 @@ const styles = StyleSheet.create({
         ...baseContent,
         backgroundColor: ComponentColors.LightContentBackground,
     },
-    
+
     detailImage: {
         ...baseDetailImage,
     },
@@ -311,9 +395,25 @@ const styles = StyleSheet.create({
         ...baseInputIcon,
     },
 
+    link: {
+        ...baseLink,
+    },
+
     logoImage: {
         ...baseLogoImage,
         backgroundColor: 'transparent'
+    },
+
+    modalContainer: {
+        ...baseModalContainer
+    },
+
+    modalView: {
+        ...baseModalView,
+    },
+
+    modalViewIndicator: {
+        ...baseModalViewIndicator
     },
 
     pagination: {
@@ -354,13 +454,34 @@ const styles = StyleSheet.create({
         ...baseSearchInput,
     },
 
+    serieName: {
+        ...baseSerieName,
+        color: ComponentColors.LightSerieName,
+    },
+
+    
+    serieDetails: {
+        ...baseSerieDetails,
+        color: ComponentColors.LightSerieName,
+    },
+
     scrollView: {
         ...baseScrollView,
         backgroundColor: ComponentColors.LightScrollViewBackground,
     },
 
+    summaryView: {
+        ...baseSummaryView,
+        backgroundColor: ComponentColors.LightSummaryBackground,
+    },
+
     statusBar: {
         ...baseStatusBar,
+    },
+
+    textButton: {
+        ...baseTextButton,
+        color: ComponentColors.LightTabBarText
     },
 
     textInput: {
@@ -374,6 +495,7 @@ const styles = StyleSheet.create({
 
     textLabel: {
         ...baseTextLabel,
+        color:ComponentColors.LightSerieName,
     },
 
     viewHorizontalCentered: {

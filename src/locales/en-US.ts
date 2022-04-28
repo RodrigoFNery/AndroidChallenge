@@ -3,11 +3,15 @@
  */
 
 const en_us = {
-    //Home.tsx
-    Series: 'SERIES',
     AllSeries: 'All Series',
-    Search: 'Search',
+    Episode: 'Episode',
+    Episodes: 'Episodes',
     Favorite: 'Favorite',
+    Search: 'Search',
+    Season: 'Season',
+    Select_a_season: 'Select a season',
+    Series: 'SERIES',
+    Summary: 'Summary', 
 }
 
 export default en_us

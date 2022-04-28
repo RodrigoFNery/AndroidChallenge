@@ -22,20 +22,22 @@ import styles from '../styles/appStyles';
 //Interface
 interface CardProps extends ViewProps {
     cardModel: CardModel;
+    onPress: Function;
 }
 
 const Card: React.FC<CardProps> = ({
-    cardModel
+    cardModel,
+    onPress,
 }) => {
     const imageURISource: ImageURISource = {
-        uri: cardModel ? (cardModel.image ? cardModel.image.medium : undefined ) : undefined
+        uri: cardModel ? (cardModel.image ? cardModel.image.medium : undefined) : undefined
     }
 
-    const imageSource:ImageURISource = imageURISource.uri == undefined ? require("../images/image-not-found.png") : imageURISource;
+    const imageSource: ImageURISource = imageURISource.uri == undefined ? require("../images/image-not-found.png") : imageURISource;
 
     return (
         <View style={styles.cardView}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => onPress()}>
                 <Image
                     style={styles.cardImage}
                     source={imageSource}

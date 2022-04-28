@@ -19,13 +19,26 @@ import { translate } from '../locales';
 import Card from '../components/Card';
 import Pagination from '../components/Pagination';
 
+//Screens
+import SerieDetail from './SerieDetail';
+
 //Styling
 import styles from '../styles/appStyles';
+
+//Redux
+import { store } from "../redux";
+import * as AppActions from "../redux/actions/appActions";
 
 const AllSeries = () => {
   const [series, setSeries] = useState<CardModel[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
+  const [modal, setModal] = useState(false)
+
+  const onclick = (serie: CardModel) => {
+    store.dispatch(AppActions.setSelectedSerieId(serie.id));
+    setModal(true);
+  }
 
   const countPages = async () => {
     const p = await Services.countPages();
@@ -33,7 +46,7 @@ const AllSeries = () => {
   };
 
   const getAllSeries = async () => {
-    setSeries(await Services.fetchAllSeries(currentPage));
+    setSeries(await Services.getAllSeries(currentPage));
   };
 
   useEffect(() => {
@@ -74,14 +87,14 @@ const AllSeries = () => {
   return (
     <>
       {Object.keys(series).length > 0 && (
-        <View style={styles.container}>
-          <ScrollView
-            contentContainerStyle={styles.scrollView} >
+        <View style={styles.content}>
+          <ScrollView contentContainerStyle={styles.scrollView} scrollEventThrottle={16}>
             {series.map((serie, i) => (
-              <Card cardModel={serie} key={i} />
+              <Card cardModel={serie} key={i} onPress={() => onclick(serie)} />
             ))}
           </ScrollView>
           <Pagination currentPage={currentPage} minPage={1} maxPage={maxPage} goBackward={() => getPreviousPage()} goForward={() => getNextPage()} goFirst={() => getFirstPage()} goLast={() => getLastPage()} />
+          <SerieDetail show={modal} onClose={() => setModal(false)} />
         </View>
       )}
     </>

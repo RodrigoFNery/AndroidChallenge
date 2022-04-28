@@ -5,13 +5,28 @@
 
 //Network
 import axios, { AxiosResponse } from 'axios';
+import CardModel from '../model/CardModel';
+import EpisodeModel from '../model/EpisodeModel';
+import SeasonModel from '../model/SeasonModel';
 
 //Entities
-import CardModel from '../model/CardModel';
+// import CardModel, { SHOW_TYPE_REGULAR, SHOW_TYPE_SCRIPTED } from '../model/CardModel';
+import SerieModel from '../model/SerieModel';
 
 const BASE_URL = "https://api.tvmaze.com/";
-const SHOW_INDEX_URL = BASE_URL + "shows";           //URL: /shows?page=:num
-const SHOW_SEARCH_URL = BASE_URL + "search/shows";   //URL: /search/shows?q=:query
+const SHOW_INDEX_URL = BASE_URL + "shows";                  //URL: /shows?page=:num
+const SHOW_MAIN_INFO_URL = BASE_URL + "shows/";             //URL: /shows/:id
+
+const SHOW_SEASONS_URL = BASE_URL + "shows/";
+const SHOW_SEASONS_SUFIX = "/seasons";                     //URL: /shows/:id/seasons
+
+const SHOW_EPISODES_URL = BASE_URL + "shows/";
+const SHOW_EPISODES_SUFIX = "/episodes";                          //URL: /shows/:id/episodes
+
+const SHOW_EPISODE_BY_ID_URL = BASE_URL + "episodes/";             //URL: /episodes/:id
+// const SHOW_EPISODES__BY_ID_SUFIX = "/episodes";                          //URL: /episodes/:id
+
+const SHOW_SEARCH_URL = BASE_URL + "search/shows";          //URL: /search/shows?q=:query
 
 // This function uses binary search to found the total number of pages
 export const countPages = async () => {
@@ -21,7 +36,7 @@ export const countPages = async () => {
     let found = false;
     while (!found) {
         try {
-            const data = await fetchAllSeries(last);
+            const data = await getAllSeries(last);
             const diff = last - first;
             if (data.length === 0) {
                 //last is above max page
@@ -54,7 +69,7 @@ export const countPages = async () => {
     return last - 1;
 };
 
-export const fetchAllSeries = async (page: number = 1) => {
+export const getAllSeries = async (page: number = 1) => {
     try {
         const { data, status } = await axios.get<CardModel[]>(
             `${SHOW_INDEX_URL}`, {
@@ -70,3 +85,92 @@ export const fetchAllSeries = async (page: number = 1) => {
         return [];
     }
 };
+
+export const getMainInfo = async (serieId: number) => {
+    try {
+        const { data, status } = await axios.get<SerieModel>(
+            `${SHOW_MAIN_INFO_URL}` + serieId, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+        return data;
+    } catch (error) {
+        console.log('getMainInfo.error:' + JSON.stringify(error))
+        return;
+    }
+};
+
+
+export const getSeasons = async (serieId: number) => {
+    try {
+        const { data, status } = await axios.get<SeasonModel[]>(
+            `${SHOW_SEASONS_URL}` + serieId + `${SHOW_SEASONS_SUFIX}`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+        return data;
+    } catch (error) {
+        return [];
+    }
+};
+
+export const getEpisodes = async (serieId: number) => {
+    try {
+        const { data, status } = await axios.get<EpisodeModel[]>(
+            `${SHOW_EPISODES_URL}` + serieId + `${SHOW_EPISODES_SUFIX}`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+        return data;
+    } catch (error) {
+        return [];
+    }
+};
+
+export const getEpisodeById = async (episodeId: number) => {
+    try {
+        const { data, status } = await axios.get<EpisodeModel>(
+            `${SHOW_EPISODE_BY_ID_URL}` + episodeId, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+        return data;
+    } catch (error) {
+        return;
+    }
+};
+
+export const getSeasonsMap = async (serieId: number) => {
+    return await createSeasonMap(serieId);
+}
+
+const createSeasonMap = async (serieId: number) => {
+    const episodes = await getEpisodes(serieId);
+    const map = new Map<number, SeasonModel>();
+    if (serieId && episodes.length > 0) {
+        episodes.map((episode) => {
+            if (episode.season) {
+                let season = map.get(episode.season);
+                let episodeList: EpisodeModel[];
+                if (season == undefined) {
+                    // create new Epidose array
+                    episodeList = [];
+                    // create new Season
+                    season = {
+                        number: episode.season,
+                        serieId: serieId,
+                        episodes: episodeList,
+                    }
+                    map.set(episode.season, season);
+                }
+                //add episode to the Season
+                season.episodes.push(episode);
+            }
+        })
+    }
+    return map;
+}
