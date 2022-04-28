@@ -497,6 +497,7 @@ const styles = StyleSheet.create({
 
     textInput: {
         ...baseTextInput,
+        color: ComponentColors.LightTextInput
     },
 
     textFieldLabel: {
