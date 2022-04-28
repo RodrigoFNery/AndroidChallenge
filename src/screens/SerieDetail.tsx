@@ -251,26 +251,29 @@ const SerieDetail: React.FC<ReduxType> = ({
       >
         <View style={{ ...styles.container, justifyContent: 'space-between' }}>
           <View style={{ ...styles.content, flex: 1 }}>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row', margin:5 }}>
               <Text style={{ ...styles.serieName }}>{translate('Serie_Detail')}</Text>
             </View>
             <View style={styles.separator} />
-            <View style={{ ...styles.viewHorizontalLeft }}>
-              <Image
-                style={styles.cardImage}
-                source={imageSource}
-              />
-              <View style={{ ...styles.content, marginTop: 10 }}>
+            <View style={{ ...styles.viewHorizontalLeft, justifyContent: 'center' }}>
+              <View style={{ marginTop: 10, alignItems: 'baseline'}}>
+                <Image
+                  style={styles.cardImage}
+                  source={imageSource}
+                />
+              </View>
+              <View style={{ flex: 1, margin: 5}}>
                 {getSerieView(serie)}
                 {getGenresView(serie)}
                 {getDaysView(serie)}
                 {getTimeView(serie)}
+                <View  style={{ flex: 1}}></View>
               </View>
             </View>
 
             <View style={{ flex: 1 }}>
               <ScrollView contentContainerStyle={{ flexGrow: 1 }} scrollEventThrottle={16}>
-                <View style={{ flexDirection: 'row' }}>
+                <View style={{ flexDirection: 'row', margin:5 }}>
                   <Text style={{ ...styles.serieDetails }}>{translate('Summary')}</Text>
                 </View>
                 <View style={{ ...styles.summaryView }}>

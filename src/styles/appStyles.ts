@@ -234,20 +234,12 @@ const basePaginationNumberView: StyleProp<ViewStyle> = {
 };
 
 const baseSearchContainer: StyleProp<ViewStyle> = {
-    flex: 1,
-    marginTop: 100,
-    marginBottom: 100,
-    marginLeft: 20,
-    marginRight: 20,
-};
-
-const baseSearchInput: StyleProp<TextStyle> = {
-    height: 40,
-    fontSize: MEDIUM_FONT_SIZE,
-    width: '90%',
-    borderBottomWidth: 1,
-    marginTop: 8,
-    marginVertical: 15,
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderRadius: 10,
+    margin: 5,
+    marginLeft: 10,
+    marginRight: 10,
 };
 
 const baseSerieDetails: StyleProp<TextStyle> = {
@@ -300,13 +292,12 @@ const baseTextButton: StyleProp<TextStyle> = {
 
 const baseTextInput: StyleProp<TextStyle> = {
     fontSize: MEDIUM_FONT_SIZE,
-    borderWidth: 1,
-    textAlign: 'center',
+    textAlign: 'left',
     textAlignVertical: 'center',
     height: TEXT_INPUT_HEIGHT,
     padding: 0,
     margin: 2,
-    borderRadius: 5
+    
 };
 
 const baseTextFieldLabel: StyleProp<TextStyle> = {
@@ -410,7 +401,7 @@ const styles = StyleSheet.create({
         backgroundColor: ComponentColors.LightHeaderBackgroundColor,
     },
 
-    baseInputIcon: {
+    inputIcon: {
         ...baseInputIcon,
     },
 
@@ -469,10 +460,6 @@ const styles = StyleSheet.create({
         ...baseSearchContainer,
     },
 
-    searchInput: {
-        ...baseSearchInput,
-    },
-
     serieName: {
         ...baseSerieName,
         color: ComponentColors.LightSerieName,
@@ -510,7 +497,6 @@ const styles = StyleSheet.create({
 
     textInput: {
         ...baseTextInput,
-        borderColor: ComponentColors.LightHeaderBackgroundColor,
     },
 
     textFieldLabel: {

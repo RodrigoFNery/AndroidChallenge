@@ -16,6 +16,8 @@ const pt_br = {
    Serie_Detail: 'Detalhes da Série',
    Series: 'SÉRIES',
    Summary: 'Resumo',
+   Type_a_text_to_search:'Digite um texto para buscar',
+
 }
 
 export default pt_br;

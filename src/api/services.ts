@@ -28,6 +28,12 @@ const SHOW_EPISODE_BY_ID_URL = BASE_URL + "episodes/";             //URL: /episo
 
 const SHOW_SEARCH_URL = BASE_URL + "search/shows";          //URL: /search/shows?q=:query
 
+//The interface for Search by name resultset
+interface SearchResultSet {
+    score: number;
+    show: CardModel;
+}
+
 // This function uses binary search to found the total number of pages
 export const countPages = async () => {
     let first = 1;
@@ -81,6 +87,32 @@ export const getAllSeries = async (page: number = 1) => {
             },
         });
         return data;
+    } catch (error) {
+        return [];
+    }
+};
+
+export const searchSeriesByName = async (name: string = '') => {
+    try {
+        const { data, status } = await axios.get<SearchResultSet[]>(
+            `${SHOW_SEARCH_URL}`, {
+            params: {
+                q: name,
+            },
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+        if (data){
+            const result:CardModel[] = [];
+            data.map((entry, key) => {
+                const cardModel:CardModel = entry.show;
+                result.push(cardModel);
+            })
+            return result;
+        }else{
+            return [];
+        }
     } catch (error) {
         return [];
     }

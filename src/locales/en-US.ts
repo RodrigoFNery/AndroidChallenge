@@ -16,6 +16,7 @@ const en_us = {
     Serie_Detail: 'Serie Detail',
     Series: 'SERIES',
     Summary: 'Summary', 
+    Type_a_text_to_search:'Type a text to search',
 }
 
 export default en_us

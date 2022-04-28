@@ -92,15 +92,20 @@ const EpisodeDetail: React.FC<ReduxType> = ({
     ]).start()
   }
 
-  const getEpisodeNumberView = (episode?: EpisodeModel) => {
+  const getEpisodeHeaderView = (episode?: EpisodeModel) => {
     if (episode) {
       return (
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={{ ...styles.episodeDetails }}>{translate('Episode') + ' ' + (episode?.number)}  </Text>
+        <View style={{ flexDirection: 'row', margin: 5 }}>
+          <Text style={{ ...styles.serieName }}>{translate('Episode_Detail') + ' (' + (episode?.number) + ') '}</Text>
         </View>
       )
     } else {
-      return (<></>)
+      return (
+        <View style={{ flexDirection: 'row', margin: 5 }}>
+          <Text style={{ ...styles.serieName }}>{translate('Episode_Detail')}</Text>
+        </View>
+
+      )
     }
   }
 
@@ -163,26 +168,20 @@ const EpisodeDetail: React.FC<ReduxType> = ({
       >
         <View style={{ ...styles.container, justifyContent: 'space-between' }}>
           <View style={{ ...styles.content, flex: 1 }}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={{ ...styles.serieName }}>{translate('Episode_Detail')}</Text>
-            </View>
+            {getEpisodeHeaderView(episode)}
             <View style={styles.separator} />
-
-            <View style={{ ...styles.viewHorizontalLeft }}>
+            {getEpisodeNameView(episode)}
+            {getSeasonNameView(episode)}
+            <View style={{ marginTop: 10, alignItems: 'center' }}>
               <Image
                 style={styles.cardImage}
                 source={imageSource}
               />
-              <View style={{ ...styles.content, marginTop:10 }}>
-                {getEpisodeNumberView(episode)}
-                {getEpisodeNameView(episode)}
-                {getSeasonNameView(episode)}
-              </View>
             </View>
 
             <View style={{ flex: 1 }}>
               <ScrollView contentContainerStyle={{ flexGrow: 1 }} scrollEventThrottle={16}>
-                <View style={{ flexDirection: 'row' }}>
+                <View style={{ flexDirection: 'row', margin: 5 }}>
                   <Text style={{ ...styles.serieDetails }}>{translate('Summary')}</Text>
                 </View>
                 <View style={{ ...styles.summaryView }}>

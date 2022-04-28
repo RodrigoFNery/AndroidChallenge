@@ -21,6 +21,7 @@ export const ComponentColors = {
     LightTabBarText: '#fff',
     LightTabBarIndicator: '#3f3f3f',
 
+    LightTextInput: '#3f3f3f',
     LightTextInputBorder: '#3f3f3f',
     LightTextLink: '#4682b4',
 
@@ -32,5 +33,5 @@ export const ComponentColors = {
 
     LightScrollViewBackground: '#f0f0f0',
 
-    LightSummaryBackground: '#777',
+    LightSummaryBackground: '#3c958b',
 }

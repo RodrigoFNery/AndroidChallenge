@@ -21,7 +21,6 @@ import { translate } from '../locales'
 
 //Screens
 import AllSeries from './AllSeries'
-import Search from './Search'
 import Favorite from './Favorite'
 
 //Styling
@@ -38,7 +37,6 @@ interface HomeProps {
 
 //Renders TabView scene
 const renderScene = SceneMap({
-  search: Search,
   allSeries: AllSeries,
   favorite: Favorite,
 });
@@ -51,8 +49,7 @@ const Home: React.FC<HomeProps> = () => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: 'allSeries', title: translate('AllSeries') },
-    { key: 'search', title: translate('Search') },
-    { key: 'favorite', title: translate('Favorite') },
+    // { key: 'favorite', title: translate('Favorite') },
   ]);
 
   //Renders TabView tab
