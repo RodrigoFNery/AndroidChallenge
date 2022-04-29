@@ -11,7 +11,7 @@ interface Schedule {
     days: string[];
 }
 
-export default interface SerieModel {
+export default interface SeriesModel {
     id: number;
     name: string;
     url: string;

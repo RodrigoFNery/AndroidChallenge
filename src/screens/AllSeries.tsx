@@ -36,7 +36,7 @@ import Card from '../components/Card';
 import Pagination from '../components/Pagination';
 
 //Screens
-import SerieDetail from './SerieDetail';
+import SeriesDetail from './SeriesDetail';
 import EpisodeDetail from './EpisodeDetail';
 
 //Styling
@@ -44,6 +44,8 @@ import styles from '../styles/appStyles';
 
 //Redux
 import { store } from "../redux";
+import { connect } from "react-redux";
+import { AppState } from '../redux/reducers/appReducer';
 import * as AppActions from "../redux/actions/appActions";
 
 //if there is a serch still running to avoid trigger other search
@@ -51,10 +53,9 @@ var searchIsRunning = false;
 var hasPenddingSearch = false;
 
 //Main Functional Component
-const AllSeries = () => {
-  //Search keys
-  const KEYS_TO_FILTERS = ['firstName', 'lastName'];
-
+const AllSeries: React.FC<ReduxType> = ({
+  favoriteSeriesIds,
+}) => {
   //hold series cards of current page
   const [series, setSeries] = useState<CardModel[]>([]);
 
@@ -95,7 +96,7 @@ const AllSeries = () => {
 
   const onSerieclick = (serie: CardModel) => {
     store.dispatch(AppActions.setSelectedSerieId(serie.id));
-    store.dispatch(AppActions.setShowSerieDetail(true));
+    store.dispatch(AppActions.setShowSeriesDetail(true));
     store.dispatch(AppActions.setShowEpisodeDetail(false));
   }
 
@@ -107,7 +108,7 @@ const AllSeries = () => {
 
   //Load series cards for the current page
   const getAllSeries = async () => {
-    setSeries(await Services.getAllSeries(currentPage));
+    setSeries(await Services.getCardModelsByPage(currentPage));
   };
 
   //Load series cards by term changes
@@ -118,7 +119,7 @@ const AllSeries = () => {
       } else {
         hasPenddingSearch = false;
         searchIsRunning = true;
-        setSeries(await Services.searchSeriesByName(searchTerm.trim()));
+        setSeries(await Services.searchCardModelsByName(searchTerm.trim()));
       }
     } else {
       hasPenddingSearch = false;
@@ -194,6 +195,8 @@ const AllSeries = () => {
     }
     return (<></>);
   }
+
+
   return (
     <View style={{ ...styles.container }}>
       {getSearchInputView()}
@@ -205,7 +208,7 @@ const AllSeries = () => {
             ))}
           </ScrollView>
           {getPaginationView()}
-          <SerieDetail />
+          <SeriesDetail />
           <EpisodeDetail />
         </View>
       )}
@@ -213,4 +216,14 @@ const AllSeries = () => {
   );
 };
 
-export default memo(AllSeries);
+const mapStateToProps = (appState: AppState) => {
+  return (
+    {
+      favoriteSeriesIds: appState.favoriteSeriesIds,
+    }
+  )
+};
+
+type ReduxType = ReturnType<typeof mapStateToProps>;
+
+export default connect(mapStateToProps)(AllSeries);

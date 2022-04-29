@@ -1,5 +1,5 @@
 /**
- * EpisodeDetail.tsx
+ * FavoriteEpisodeDetail.tsx
  * Renders the screen that shows episodes details
  */
 
@@ -41,9 +41,9 @@ import * as AppActions from "../redux/actions/appActions";
 const { height } = Dimensions.get('window')
 
 //Main Functional Component
-const EpisodeDetail: React.FC<ReduxType> = ({
-  selectedEpisodeId,
-  showEpisodeDetail,
+const FavoriteEpisodeDetail: React.FC<ReduxType> = ({
+  favoriteSelectedEpisodeId,
+  favoriteShowEpisodeDetail,
 }) => {
   //EpisodeModel instance
   const [episode, setEpisode] = useState<EpisodeModel>();
@@ -62,17 +62,17 @@ const EpisodeDetail: React.FC<ReduxType> = ({
         setEpisode(await Services.getEpisodeModelById(selectedEpisodeId));
       }
     }
-    loadEpisode(selectedEpisodeId);
-  }, [selectedEpisodeId])
+    loadEpisode(favoriteSelectedEpisodeId);
+  }, [favoriteSelectedEpisodeId])
 
-  // Open/Close this screen when showEpisodeDetail changes
+  // Open/Close this screen when favoriteShowEpisodeDetail changes
   useEffect(() => {
-    if (showEpisodeDetail) {
+    if (favoriteShowEpisodeDetail) {
       openModal();
     } else {
       closeModal();
     }
-  }, [showEpisodeDetail])
+  }, [favoriteShowEpisodeDetail])
 
   //Open modal animation
   const openModal = async () => {
@@ -134,8 +134,8 @@ const EpisodeDetail: React.FC<ReduxType> = ({
   }
 
   const onBackClick = () => {
-    store.dispatch(AppActions.setShowSeriesDetail(true));
-    store.dispatch(AppActions.setShowEpisodeDetail(false));
+    store.dispatch(AppActions.setFavoriteShowSeriesDetail(true));
+    store.dispatch(AppActions.setFavoriteShowEpisodeDetail(false));
   }
 
   const imageURISource: ImageURISource = {
@@ -207,13 +207,13 @@ const EpisodeDetail: React.FC<ReduxType> = ({
 const mapStateToProps = (appState: AppState) => {
   return (
     {
-      selectedSeasonNumber: appState.selectedSeasonNumber,
-      selectedEpisodeId: appState.selectedEpisodeId,
-      showEpisodeDetail: appState.showEpisodeDetail,
+      favoriteSelectedSeasonNumber: appState.favoriteSelectedSeasonNumber,
+      favoriteSelectedEpisodeId: appState.favoriteSelectedEpisodeId,
+      favoriteShowEpisodeDetail: appState.favoriteShowEpisodeDetail,
     }
   )
 };
 
 type ReduxType = ReturnType<typeof mapStateToProps>;
 
-export default connect(mapStateToProps)(EpisodeDetail);
+export default connect(mapStateToProps)(FavoriteEpisodeDetail);

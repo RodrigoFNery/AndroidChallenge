@@ -1,6 +1,6 @@
 /**
- * AllSeries.tsx
- * Renders the screen that shows all series cards
+ * SeriesDetail.tsx
+ * Renders the screen that shows series details
  */
 
 import React, { memo, useState, useEffect } from 'react';
@@ -31,7 +31,7 @@ import { translate } from '../locales';
 
 //Styling
 import styles from '../styles/appStyles';
-import SerieModel from '../model/SerieModel';
+import SeriesModel from '../model/SeriesModel';
 import { ComponentColors } from '../styles/colors';
 
 //Redux
@@ -49,13 +49,13 @@ type SeasonDropboxItems = {
 }
 
 //Main FunctionalComponent
-const SerieDetail: React.FC<ReduxType> = ({
+const SeriesDetail: React.FC<ReduxType> = ({
   selectedSerieId,
+  showSeriesDetail,
   selectedSeasonNumber,
-  showSerieDetail,
 }) => {
-  //Holds the selected SerieModel instance
-  const [serie, setSerie] = useState<SerieModel>();
+  //Holds the selected SeriesModel instance
+  const [serie, setSerie] = useState<SeriesModel>();
 
   //Holds the Animation state
   const [state, setState] = useState({
@@ -75,17 +75,20 @@ const SerieDetail: React.FC<ReduxType> = ({
   //List of episodes for the selected season
   const [episodesList, setEpisodesList] = useState(<></>);
 
+  //List of favorite series from local storage
+  const [favoriteSeriesIds, setFavoriteSeriesIds] = useState<string[]>([]);
+
   //load the selected Serie when selectedSerieId changes
   useEffect(() => {
     const loadSerie = async (selectedSerieId: number) => {
       if (selectedSerieId) {
-        setSerie(await Services.getMainInfo(selectedSerieId));
+        setSerie(await Services.getSeriesModelById(selectedSerieId));
       }
     }
     loadSerie(selectedSerieId);
   }, [selectedSerieId])
 
-  //create seasonsMap when the SerieModel instance changes
+  //create seasonsMap when the SeriesModel instance changes
   useEffect(() => {
     //reset SeasonValue and EpidoseListas the serie has changed
     setSeasonValue(null);
@@ -101,16 +104,17 @@ const SerieDetail: React.FC<ReduxType> = ({
   //populates populateSeasonsDropbox when seasonsMap changes
   useEffect(() => {
     populateSeasonsDropbox();
+    setSeasonValue(selectedSeasonNumber);
   }, [seasonsMap])
 
   // Open/Close this screen when 'show' changes
   useEffect(() => {
-    if (showSerieDetail) {
+    if (showSeriesDetail) {
       openModal();
     } else {
       closeModal();
     }
-  }, [showSerieDetail])
+  }, [showSeriesDetail])
 
   //create episodesList when SeasonValue for dropbox changes
   useEffect(() => {
@@ -136,7 +140,23 @@ const SerieDetail: React.FC<ReduxType> = ({
   }
 
   const onCloseClick = () => {
-    store.dispatch(AppActions.setShowSerieDetail(false));
+    store.dispatch(AppActions.setShowSeriesDetail(false));
+  }
+
+  const onFavoriteCkick = (seriesId: number) => {
+    const index = favoriteSeriesIds.indexOf(seriesId.toString());
+    let newArray = favoriteSeriesIds.slice();
+    if (index == -1) {
+      newArray.push(seriesId.toString());
+    } else {
+      newArray = [
+        ...newArray.slice(0, index),
+        ...newArray.slice(index + 1, newArray.length)
+      ]
+    }
+    setFavoriteSeriesIds(newArray);
+    store.dispatch(AppActions.setFavoriteSeriesIds(newArray));
+    Services.saveFavoriteSeriesIds(newArray);
   }
 
   const onSeasonSelected = (seasonNumber: number) => {
@@ -168,32 +188,51 @@ const SerieDetail: React.FC<ReduxType> = ({
     html: (serie ? serie.summary : "")
   };
 
-  const getSerieView = (serie?: SerieModel) => {
-    if (serie?.genres) {
+  const getHeaderView = (serie?: SeriesModel) => {
+    if (serie) {
+      const imagePath = favoriteSeriesIds.indexOf(serie.id.toString()) > -1 ? require('../images/heart_full.png') : require('../images/heart_empty.png');
+      return (
+        <View style={{ ...styles.viewHorizontalCentered, margin: 10 }}>
+          <View style={{ flexDirection: 'row', margin: 5 }}>
+            <Text style={{ ...styles.serieName }}>{translate('Serie_Detail')}</Text>
+          </View>
+          <TouchableOpacity onPress={() => onFavoriteCkick(serie.id)}>
+            <Image
+              style={styles.inputIcon}
+              source={imagePath}
+            />
+          </TouchableOpacity>
+        </View>
+      )
+    }
+  }
+
+  const getNameView = (serie?: SeriesModel) => {
+    if (serie?.name) {
       return (
         <View style={{ flexDirection: 'row' }}>
-          <Text style={styles.serieName}>{serie?.name}</Text>
+          <Text style={styles.serieName}>{serie.name}</Text>
         </View>
       )
     }
     return;
   }
 
-  const getGenresView = (serie?: SerieModel) => {
+  const getGenresView = (serie?: SeriesModel) => {
     if (serie?.genres) {
       return (<Text style={styles.serieDetails}>({serie.genres.join()})</Text>)
     }
     return;
   }
 
-  const getDaysView = (serie?: SerieModel) => {
+  const getDaysView = (serie?: SeriesModel) => {
     if (serie?.schedule.days) {
       return (<Text style={styles.serieDetails}>{serie.schedule.days.join()}</Text>)
     }
     return;
   }
 
-  const getTimeView = (serie?: SerieModel) => {
+  const getTimeView = (serie?: SeriesModel) => {
     if (serie?.schedule.days) {
       return (<Text style={styles.serieDetails}>{serie?.schedule.time}</Text>)
     }
@@ -250,30 +289,28 @@ const SerieDetail: React.FC<ReduxType> = ({
         }]}
       >
         <View style={{ ...styles.container, justifyContent: 'space-between' }}>
+          {getHeaderView(serie)}
           <View style={{ ...styles.content, flex: 1 }}>
-            <View style={{ flexDirection: 'row', margin:5 }}>
-              <Text style={{ ...styles.serieName }}>{translate('Serie_Detail')}</Text>
-            </View>
             <View style={styles.separator} />
             <View style={{ ...styles.viewHorizontalLeft, justifyContent: 'center' }}>
-              <View style={{ marginTop: 10, alignItems: 'baseline'}}>
+              <View style={{ marginTop: 10, alignItems: 'baseline' }}>
                 <Image
                   style={styles.cardImage}
                   source={imageSource}
                 />
               </View>
-              <View style={{ flex: 1, margin: 5}}>
-                {getSerieView(serie)}
+              <View style={{ flex: 1, margin: 5 }}>
+                {getNameView(serie)}
                 {getGenresView(serie)}
                 {getDaysView(serie)}
                 {getTimeView(serie)}
-                <View  style={{ flex: 1}}></View>
+                <View style={{ flex: 1 }}></View>
               </View>
             </View>
 
             <View style={{ flex: 1 }}>
               <ScrollView contentContainerStyle={{ flexGrow: 1 }} scrollEventThrottle={16}>
-                <View style={{ flexDirection: 'row', margin:5 }}>
+                <View style={{ flexDirection: 'row', margin: 5 }}>
                   <Text style={{ ...styles.serieDetails }}>{translate('Summary')}</Text>
                 </View>
                 <View style={{ ...styles.summaryView }}>
@@ -313,11 +350,11 @@ const mapStateToProps = (appState: AppState) => {
     {
       selectedSerieId: appState.selectedSerieId,
       selectedSeasonNumber: appState.selectedSeasonNumber,
-      showSerieDetail: appState.showSerieDetail,
+      showSeriesDetail: appState.showSeriesDetail,
     }
   )
 };
 
 type ReduxType = ReturnType<typeof mapStateToProps>;
 
-export default connect(mapStateToProps)(SerieDetail);
+export default connect(mapStateToProps)(SeriesDetail);

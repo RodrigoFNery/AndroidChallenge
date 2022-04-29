@@ -24,6 +24,14 @@ All the mandatory functionalities were implemented:
     - Poster (if available)
     - Summary<p>
 
+The following Bonus (optional) features were implemented:
+
+- Allow the user to save a series as a favorite.<p>
+
+- Allow the user to delete a series from the favorites list. <p>
+
+- Allow the user to browse their favorite series in alphabetical order, and click on one to see its details. <p>
+
 ## Some of the packages used
 
 - **`"@react-navigation/native"`** and **`@react-navigation/native-stack"`**<br>

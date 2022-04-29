@@ -4,12 +4,14 @@
 
 const en_us = {
     AllSeries: 'All Series',
+    Are_your_sure: 'Are your sure?',
     Back: 'Back',
     Close: 'Close',
     Episode: 'Episode',
     Episode_Detail: 'Episode Detail',
     Episodes: 'Episodes',
     Favorite: 'Favorite',
+    Remove_this_series_from_favorite: 'Remove this series from favorite?',
     Search: 'Search',
     Season: 'Season',
     Select_a_season: 'Select a season',

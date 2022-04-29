@@ -9,9 +9,10 @@ import CardModel from '../model/CardModel';
 import EpisodeModel from '../model/EpisodeModel';
 import SeasonModel from '../model/SeasonModel';
 
+import AsyncStorage from "@react-native-community/async-storage";
+
 //Entities
-// import CardModel, { SHOW_TYPE_REGULAR, SHOW_TYPE_SCRIPTED } from '../model/CardModel';
-import SerieModel from '../model/SerieModel';
+import SeriesModel from '../model/SeriesModel';
 
 const BASE_URL = "https://api.tvmaze.com/";
 const SHOW_INDEX_URL = BASE_URL + "shows";                  //URL: /shows?page=:num
@@ -28,6 +29,9 @@ const SHOW_EPISODE_BY_ID_URL = BASE_URL + "episodes/";             //URL: /episo
 
 const SHOW_SEARCH_URL = BASE_URL + "search/shows";          //URL: /search/shows?q=:query
 
+//favorite series storage key
+const FAVORITE_SERIES = 'FAVORITE_SERIES';
+
 //The interface for Search by name resultset
 interface SearchResultSet {
     score: number;
@@ -42,7 +46,7 @@ export const countPages = async () => {
     let found = false;
     while (!found) {
         try {
-            const data = await getAllSeries(last);
+            const data = await getCardModelsByPage(last);
             const diff = last - first;
             if (data.length === 0) {
                 //last is above max page
@@ -75,7 +79,7 @@ export const countPages = async () => {
     return last - 1;
 };
 
-export const getAllSeries = async (page: number = 1) => {
+export const getCardModelsByPage = async (page: number = 1) => {
     try {
         const { data, status } = await axios.get<CardModel[]>(
             `${SHOW_INDEX_URL}`, {
@@ -92,7 +96,7 @@ export const getAllSeries = async (page: number = 1) => {
     }
 };
 
-export const searchSeriesByName = async (name: string = '') => {
+export const searchCardModelsByName = async (name: string = '') => {
     try {
         const { data, status } = await axios.get<SearchResultSet[]>(
             `${SHOW_SEARCH_URL}`, {
@@ -103,14 +107,14 @@ export const searchSeriesByName = async (name: string = '') => {
                 Accept: 'application/json',
             },
         });
-        if (data){
-            const result:CardModel[] = [];
+        if (data) {
+            const result: CardModel[] = [];
             data.map((entry, key) => {
-                const cardModel:CardModel = entry.show;
+                const cardModel: CardModel = entry.show;
                 result.push(cardModel);
             })
             return result;
-        }else{
+        } else {
             return [];
         }
     } catch (error) {
@@ -118,9 +122,9 @@ export const searchSeriesByName = async (name: string = '') => {
     }
 };
 
-export const getMainInfo = async (serieId: number) => {
+export const getSeriesModelById = async (serieId: number) => {
     try {
-        const { data, status } = await axios.get<SerieModel>(
+        const { data, status } = await axios.get<SeriesModel>(
             `${SHOW_MAIN_INFO_URL}` + serieId, {
             headers: {
                 Accept: 'application/json',
@@ -134,7 +138,7 @@ export const getMainInfo = async (serieId: number) => {
 };
 
 
-export const getSeasons = async (serieId: number) => {
+export const getSeasonModelsBySeriesId = async (serieId: number) => {
     try {
         const { data, status } = await axios.get<SeasonModel[]>(
             `${SHOW_SEASONS_URL}` + serieId + `${SHOW_SEASONS_SUFIX}`, {
@@ -148,7 +152,7 @@ export const getSeasons = async (serieId: number) => {
     }
 };
 
-export const getEpisodes = async (serieId: number) => {
+export const getEpisodeModelsBySeriesId = async (serieId: number) => {
     try {
         const { data, status } = await axios.get<EpisodeModel[]>(
             `${SHOW_EPISODES_URL}` + serieId + `${SHOW_EPISODES_SUFIX}`, {
@@ -162,7 +166,7 @@ export const getEpisodes = async (serieId: number) => {
     }
 };
 
-export const getEpisodeById = async (episodeId: number) => {
+export const getEpisodeModelById = async (episodeId: number) => {
     try {
         const { data, status } = await axios.get<EpisodeModel>(
             `${SHOW_EPISODE_BY_ID_URL}` + episodeId, {
@@ -176,12 +180,36 @@ export const getEpisodeById = async (episodeId: number) => {
     }
 };
 
+//Load favorite series from local storage
+export const getCardModels = async (seriesIds: string[]) => {
+    let newSeries: CardModel[] = [];
+    try {
+        if (seriesIds.length > 0) {
+            await asyncForEach(seriesIds, async (id: string) => {
+                const seriesModel: SeriesModel | undefined = await getSeriesModelById(Number.parseInt(id));
+                if (seriesModel) {
+                    const cardModel: CardModel = {
+                        id: seriesModel.id,
+                        image: seriesModel.image,
+                        name: seriesModel.name,
+                    }
+                    newSeries.push(cardModel);
+                }
+            });
+        }
+    } catch (error) {
+        console.log('loadFavoriteSeries.error' + (error as Error).message);
+    }
+    return newSeries;
+}
+
+
 export const getSeasonsMap = async (serieId: number) => {
     return await createSeasonMap(serieId);
 }
 
 const createSeasonMap = async (serieId: number) => {
-    const episodes = await getEpisodes(serieId);
+    const episodes = await getEpisodeModelsBySeriesId(serieId);
     const map = new Map<number, SeasonModel>();
     if (serieId && episodes.length > 0) {
         episodes.map((episode) => {
@@ -205,4 +233,67 @@ const createSeasonMap = async (serieId: number) => {
         })
     }
     return map;
+}
+
+//Load favorite series Ids from local storage
+export const loadFavoriteSeriesIds = async () => {
+    let seriesIds: string[] = []
+    try {
+        const value = await AsyncStorage.getItem(FAVORITE_SERIES);
+        if (value !== null) {
+            seriesIds = value.split(',');
+        }
+    } catch (error) {
+        console.log('loadFavoriteSeriesIds.error' + (error as Error).message);
+    }
+    return seriesIds;
+}
+
+export const asyncForEach = async (array: any, callback: Function) => {
+    for (let index = 0; index < array.length; index++) {
+      await callback(array[index], index, array);
+    }
+  }
+
+
+//Load favorite series from local storage
+export const loadFavoriteSeries = async () => {
+    let newSeries: CardModel[] = [];
+    try {
+        const seriesIds: string[] = await loadFavoriteSeriesIds();
+        if (seriesIds.length > 0) {
+            await asyncForEach(seriesIds, async (id: string) => {
+                const seriesModel: SeriesModel | undefined = await getSeriesModelById(Number.parseInt(id));
+                if (seriesModel) {
+                    const cardModel: CardModel = {
+                        id: seriesModel.id,
+                        image: seriesModel.image,
+                        name: seriesModel.name,
+                    }
+                    newSeries.push(cardModel);
+                }
+            });
+        }
+    } catch (error) {
+        console.log('loadFavoriteSeries.error' + (error as Error).message);
+    }
+    return newSeries;
+}
+
+export const saveFavoriteSeries = async (series: CardModel[]) => {
+    const seriesIds: string[] = [];
+    if (series.length > 0) {
+        series.map((serie, key) => {
+            seriesIds.push(serie.id.toString());
+        })
+    }
+    saveFavoriteSeriesIds(seriesIds);
+}
+
+export const saveFavoriteSeriesIds = async (seriesIds: string[]) => {
+    try {
+        await AsyncStorage.setItem(FAVORITE_SERIES, seriesIds.join());
+    } catch (error) {
+        console.log('saveFavoriteSeries.error' + (error as Error).message);
+    }
 }

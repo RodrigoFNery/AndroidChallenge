@@ -14,9 +14,6 @@ interface CardImageSize {
 
 export default interface CardModel {
     id: number;
-    type: string;
-    season: number;
     name: string;
-    url: string;
     image: CardImageSize;
 }

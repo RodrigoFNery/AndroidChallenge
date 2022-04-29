@@ -242,7 +242,7 @@ const baseSearchContainer: StyleProp<ViewStyle> = {
     marginRight: 10,
 };
 
-const baseSerieDetails: StyleProp<TextStyle> = {
+const baseSeriesDetails: StyleProp<TextStyle> = {
     flex: 1,
     flexWrap: 'wrap',
     textAlignVertical: 'center',
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
 
     
     serieDetails: {
-        ...baseSerieDetails,
+        ...baseSeriesDetails,
         color: ComponentColors.LightSerieName,
     },
 
