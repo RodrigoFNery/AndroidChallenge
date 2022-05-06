@@ -12,12 +12,12 @@ import {
   NativeSyntheticEvent,
   TextInputChangeEventData,
   TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 
 //React
 import React,
 {
-  memo,
   useState,
   useEffect
 } from 'react';
@@ -52,6 +52,9 @@ import * as AppActions from "../redux/actions/appActions";
 var searchIsRunning = false;
 var hasPenddingSearch = false;
 
+//tells if page is still loading data
+var loading = true;
+
 //Main Functional Component
 const AllSeries: React.FC<ReduxType> = ({
   favoriteSeriesIds,
@@ -68,11 +71,12 @@ const AllSeries: React.FC<ReduxType> = ({
   //Term to be search
   const [searchTerm, setSearchTerm] = useState('');
 
+  //updates the screen if updateSwitch changes
+  const [updateSwitch, setUpdateSwitch] = useState(false);
+
   //Counts the total number of pages and load series for the current page cards when screen is loaded
   useEffect(() => {
-    countPages().then(() => {
-      getAllSeries();
-    })
+    countPages();
   }, []);
 
   //Loads series cards for the current page when currentPage changes
@@ -102,13 +106,20 @@ const AllSeries: React.FC<ReduxType> = ({
 
   //Counts the total number of pages using Binary Search logic
   const countPages = async () => {
-    const p = await Services.countPages();
-    setMaxPage(p);
+    Services.countPages().then((p)=>{
+      setMaxPage(p);
+      getAllSeries();
+    })
   };
 
   //Load series cards for the current page
   const getAllSeries = async () => {
-    setSeries(await Services.getCardModelsByPage(currentPage));
+    loading = true;
+    setUpdateSwitch(!updateSwitch);
+    Services.getCardModelsByPage(currentPage).then((result) => {
+      loading = false;
+      setSeries(result);
+    })    
   };
 
   //Load series cards by term changes
@@ -119,11 +130,14 @@ const AllSeries: React.FC<ReduxType> = ({
       } else {
         hasPenddingSearch = false;
         searchIsRunning = true;
-        setSeries(await Services.searchCardModelsByName(searchTerm.trim()));
+        Services.searchCardModelsByName(searchTerm.trim()).then((result)=>{
+          searchIsRunning = false;
+          setSeries(result); 
+        })
       }
     } else {
       hasPenddingSearch = false;
-      searchIsRunning = true;
+      searchIsRunning = false;
       getAllSeries();
     }
   };
@@ -196,12 +210,12 @@ const AllSeries: React.FC<ReduxType> = ({
     return (<></>);
   }
 
-
   return (
     <View style={{ ...styles.container }}>
       {getSearchInputView()}
       {Object.keys(series).length > 0 && (
         <View style={styles.content}>
+    {(loading || searchIsRunning ) && ( <ActivityIndicator size="large" />)}
           <ScrollView contentContainerStyle={styles.scrollView} scrollEventThrottle={16}>
             {series.map((serie, i) => (
               <Card cardModel={serie} key={i} onPress={() => onSerieclick(serie)} />
